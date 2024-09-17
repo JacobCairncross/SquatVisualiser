@@ -7,13 +7,13 @@ let kneeAngle;
 let hipAngle;
 
 const setValues = () => {
-    tibiaLength = document.getElementById('tibiaLength') ?? 100
-    thighLength = document.getElementById('thighLength') ?? 100
-    torsoLength = document.getElementById('torsoLength') ?? 175
-    ankleAngle = document.getElementById('ankleAngle') * (Math.PI/180) ?? 1
-    kneeAngle = document.getElementById('kneeAngle') * (Math.PI/180) ?? 2
-    hipAngle = document.getElementById('hipAngle') * (Math.PI/180) ?? Math.PI/2
-    heelPosition = {x: 250, y: 500}
+    tibiaLength = document.getElementById('tibiaLength').value != "" ? document.getElementById('tibiaLength').value : 100
+    thighLength = document.getElementById('thighLength').value != "" ? document.getElementById('tibiaLength').value : 100
+    torsoLength = document.getElementById('torsoLength').value != "" ? document.getElementById('tibiaLength').value : 200
+    ankleAngle = document.getElementById('ankleAngle').value != "" ? document.getElementById('tibiaLength').value * (Math.PI/180) : Math.PI/4
+    kneeAngle = document.getElementById('kneeAngle').value != "" ? document.getElementById('tibiaLength').value * (Math.PI/180) : Math.PI/2
+    hipAngle = document.getElementById('hipAngle').value != "" ? document.getElementById('tibiaLength').value * (Math.PI/180) : (Math.PI*3)/4
+    heelPosition = {x: 0, y: 0}
 }
 
 const inputs = [document.getElementById('tibiaLength'),
@@ -52,15 +52,19 @@ const drawSquat = () => {
     const canvas = document.getElementById("tutorial");
     const ctx = canvas.getContext("2d");
 
-    const kneePosition = calculatePosition(tibiaLength, ankleAngle, heelPosition)
-    const waistPosition = calculatePosition(thighLength, kneeAngle, kneePosition)
-    const neckPosition = calculatePosition(torsoLength, hipAngle, waistPosition)
+    // const kneePosition = calculatePosition(tibiaLength, ankleAngle, heelPosition)
+    // const waistPosition = calculatePosition(thighLength, kneeAngle, kneePosition)
+    // const neckPosition = calculatePosition(torsoLength, hipAngle, waistPosition)
+
+    const kneePosition = calculateKneePosition()
+    const hipPosition = calculateHipPosition()
+    const neckPosition = calculateNeckPosition(hipPosition)
 
     ctx.beginPath()
-    ctx.moveTo(heelPosition.x, heelPosition.y)
-    ctx.lineTo(kneePosition.x, kneePosition.y)
-    ctx.lineTo(waistPosition.x, waistPosition.y)
-    ctx.lineTo(neckPosition.x, neckPosition.y)
+    ctx.moveTo(heelPosition.x+250, 400-heelPosition.y)
+    ctx.lineTo(kneePosition.x+250, 400-kneePosition.y)
+    ctx.lineTo(hipPosition.x+250, 400-hipPosition.y)
+    ctx.lineTo(neckPosition.x+250, 400-neckPosition.y)
 
     ctx.stroke()
 }
@@ -72,6 +76,42 @@ const calculatePosition = (length, angle, startingPosition) => {
     }
 }
 
+const calculateKneePosition = () => {
+    // if we know all values apart from phi in the explanation diagram then knee position is 
+    // simple trigonometry
+    return {
+        x: tibiaLength*Math.cos(ankleAngle),
+        y: tibiaLength*Math.sin(ankleAngle)
+    }
+}
+
+const calculateHipPosition = () => {
+    // Looking at the diagram this requires the cos rule to establish sigmaPrime (the length oposite sigma).
+    // Then using the sine rule we can establish yPrime, the angle opposite y.
+    // Then since a straight line is 180 degrees its just a little subtraction to calculate the missing angle.
+    // From this we can use trig much like finding out the knee position
+    const sigmaPrime = Math.sqrt(tibiaLength**2 + thighLength**2 - 2*tibiaLength*thighLength*Math.cos(kneeAngle))
+    const yPrime = Math.asin((thighLength*Math.sin(kneeAngle))/ sigmaPrime)
+    const omega = 180 - yPrime - ankleAngle
+
+    return {
+        x: sigmaPrime*Math.cos(omega),
+        y: sigmaPrime*Math.sin(omega)
+    }
+}
+
+const calculateNeckPosition = (torsoPosition) => {
+    // To figure out the neck position we use the knowledge of the hip postion
+    // along with the knowledge of the torso length AND the fact that the neck 
+    // will be directly above the heel meaning we know the adjacent line 
+    // now we just need to do pythagoras
+    const epsilon = Math.sqrt(torsoLength**2 - torsoPosition.x**2)
+    return {
+        x: 0,
+        y: torsoPosition.y + epsilon
+    }
+}
+
 // Given lengths of these three lines, figure out angles to ensure top
 // is directly above the bottom at different angles of the middle section
 //
@@ -80,4 +120,7 @@ const calculateAngles = (tibiaLength, thighLength, torsoLength, thighAngle) => {
     console.error("Not implemented")
 }
 
-window.addEventListener('load', drawSquat);
+window.addEventListener('load', () => {
+    setValues();
+    drawSquat();
+});
