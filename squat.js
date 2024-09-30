@@ -2,83 +2,54 @@ let tibiaLength;
 let thighLength;
 let torsoLength;
 let heelPosition;
-let ankleAngle;
-let kneeAngle;
+let ankleAngle = 90;
+let kneeAngle = 180;
 let hipAngle;
+const height = width = 500;
+let canvas;
 
 const setValues = () => {
     tibiaLength = document.getElementById('tibiaLength').value != "" ? document.getElementById('tibiaLength').value : 100
-    thighLength = document.getElementById('thighLength').value != "" ? document.getElementById('tibiaLength').value : 100
-    torsoLength = document.getElementById('torsoLength').value != "" ? document.getElementById('tibiaLength').value : 200
-    ankleAngle = document.getElementById('ankleAngle').value != "" ? document.getElementById('tibiaLength').value * (Math.PI/180) : Math.PI/4
-    kneeAngle = document.getElementById('kneeAngle').value != "" ? document.getElementById('tibiaLength').value * (Math.PI/180) : Math.PI/2
-    hipAngle = document.getElementById('hipAngle').value != "" ? document.getElementById('tibiaLength').value * (Math.PI/180) : (Math.PI*3)/4
+    thighLength = document.getElementById('thighLength').value != "" ? document.getElementById('thighLength').value : 100
+    torsoLength = document.getElementById('torsoLength').value != "" ? document.getElementById('torsoLength').value : 125
     heelPosition = {x: 0, y: 0}
+    calculateAngles()
 }
 
-const inputs = [document.getElementById('tibiaLength'),
-    document.getElementById('thighLength'),
-    document.getElementById('torsoLength'),
-    document.getElementById('ankleAngle'),
-    document.getElementById('kneeAngle'),
-    document.getElementById('hipAngle')]
-
-inputs.forEach(i => i?.addEventListener('change', _ => setValues()))
-
-const draw = () => {
-    const canvas = document.getElementById("tutorial");
-    const ctx = canvas.getContext("2d");
-
-    // ctx.fillStyle = 'rgb(200 0 0)'
-    // ctx.fillRect(10, 10, 50, 50);
-
-    // ctx.fillStyle = 'rgb(0 0 200 / 50%)';
-    // ctx.fillRect(30, 30, 50, 50);
-
-    ctx.beginPath();
-    ctx.arc(100,150, 25, 0, Math.PI * 2, true);
-    ctx.stroke();
-
-    // 3 lines
-    ctx.beginPath();
-    ctx.moveTo(100,10);
-    ctx.lineTo(10,100);
-    ctx.lineTo(150,100);
-    ctx.lineTo(100,150);
-    ctx.stroke();
+window.onload = () => {
+    const inputs = [document.getElementById('tibiaLength'),
+        document.getElementById('thighLength'),
+        document.getElementById('torsoLength')]
+    
+    inputs.forEach(i => i.addEventListener('change', _ => setValues()))
+    canvas = document.getElementById("tutorial");
+    canvas.onmousemove = calculateAngles;
+    setValues();
+    fadeOut();
 }
 
 const drawSquat = () => {
-    const canvas = document.getElementById("tutorial");
-    const ctx = canvas.getContext("2d");
-
-    // const kneePosition = calculatePosition(tibiaLength, ankleAngle, heelPosition)
-    // const waistPosition = calculatePosition(thighLength, kneeAngle, kneePosition)
-    // const neckPosition = calculatePosition(torsoLength, hipAngle, waistPosition)
+    const ctx = canvas.getContext("2d");   
 
     const kneePosition = calculateKneePosition()
     const hipPosition = calculateHipPosition()
     const neckPosition = calculateNeckPosition(hipPosition)
 
+    updateAngleDisplay()
+
     ctx.beginPath()
+    ctx.strokeStyle = hipPosition.x < 0 ? 'black' : 'red'
     ctx.moveTo(heelPosition.x+250, 400-heelPosition.y)
     ctx.lineTo(kneePosition.x+250, 400-kneePosition.y)
     ctx.lineTo(hipPosition.x+250, 400-hipPosition.y)
     ctx.lineTo(neckPosition.x+250, 400-neckPosition.y)
+    drawFace(ctx, neckPosition)
+    drawFeet(ctx)
 
     ctx.stroke()
 }
 
-const calculatePosition = (length, angle, startingPosition) => {
-    return {
-        x: startingPosition.x + length*Math.cos(angle),
-        y: startingPosition.y - length*Math.sin(angle)
-    }
-}
-
 const calculateKneePosition = () => {
-    // if we know all values apart from phi in the explanation diagram then knee position is 
-    // simple trigonometry
     return {
         x: tibiaLength*Math.cos(ankleAngle),
         y: tibiaLength*Math.sin(ankleAngle)
@@ -86,25 +57,15 @@ const calculateKneePosition = () => {
 }
 
 const calculateHipPosition = () => {
-    // Looking at the diagram this requires the cos rule to establish sigmaPrime (the length oposite sigma).
-    // Then using the sine rule we can establish yPrime, the angle opposite y.
-    // Then since a straight line is 180 degrees its just a little subtraction to calculate the missing angle.
-    // From this we can use trig much like finding out the knee position
-    const sigmaPrime = Math.sqrt(tibiaLength**2 + thighLength**2 - 2*tibiaLength*thighLength*Math.cos(kneeAngle))
-    const yPrime = Math.asin((thighLength*Math.sin(kneeAngle))/ sigmaPrime)
-    const omega = 180 - yPrime - ankleAngle
-
+    const x = tibiaLength*Math.cos(ankleAngle) - thighLength*Math.cos(kneeAngle-ankleAngle)
+    const y = tibiaLength*Math.sin(ankleAngle) + thighLength*Math.sin(kneeAngle-ankleAngle)
     return {
-        x: sigmaPrime*Math.cos(omega),
-        y: sigmaPrime*Math.sin(omega)
+        x: x,
+        y: y
     }
 }
 
 const calculateNeckPosition = (torsoPosition) => {
-    // To figure out the neck position we use the knowledge of the hip postion
-    // along with the knowledge of the torso length AND the fact that the neck 
-    // will be directly above the heel meaning we know the adjacent line 
-    // now we just need to do pythagoras
     const epsilon = Math.sqrt(torsoLength**2 - torsoPosition.x**2)
     return {
         x: 0,
@@ -112,15 +73,56 @@ const calculateNeckPosition = (torsoPosition) => {
     }
 }
 
-// Given lengths of these three lines, figure out angles to ensure top
-// is directly above the bottom at different angles of the middle section
-//
-// have a trivial result at all being straight but it becomes harder after that
-const calculateAngles = (tibiaLength, thighLength, torsoLength, thighAngle) => {
-    console.error("Not implemented")
+const calculateAngles = (e) => {
+    
+    if(e == null){
+        ankleAngle = 45 * (Math.PI/180)
+        kneeAngle = 89 * (Math.PI/180)
+    }
+    else{
+        const rect = canvas.getBoundingClientRect();
+        mouseX = width - (e.clientX - rect.left);
+        mouseY = height - (e.clientY - rect.top);
+        kneeAngle = (mouseY / 2.7) * (Math.PI/180)
+        ankleAngle = (mouseX / 5.5) * (Math.PI/180)
+    }
+    // knee and ankle angle are defined, but we need to calculate the resulting hip angle
+    const innerBracket = (thighLength * Math.cos(kneeAngle - ankleAngle) - tibiaLength * Math.cos(ankleAngle)) / torsoLength
+    hipAngle = (kneeAngle - ankleAngle) + Math.acos(innerBracket)
+    drawSquat();
 }
 
-window.addEventListener('load', () => {
-    setValues();
+const updateAngleDisplay = () => {
+    document.getElementById('ankleAngle').innerText = (ankleAngle * (180/Math.PI))?.toFixed(2)
+    document.getElementById('kneeAngle').innerText = (kneeAngle * (180/Math.PI))?.toFixed(2)
+    document.getElementById('hipAngle').innerText = (hipAngle * (180/Math.PI))?.toFixed(2)
+}
+
+
+
+const fadeOut = () => {
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
+    ctx.fillRect(0, 0, width, height);
     drawSquat();
-});
+    setTimeout(fadeOut,50);
+}
+
+const drawFace = (ctx, neckPosition) =>{
+    // need to stick circle on end of neck. So need to extend neck a bit to find centre
+    // to do that need angle of hip
+    radius = 20
+    const angle = hipAngle - (kneeAngle - ankleAngle)
+    const x = 250 + neckPosition.x + radius * Math.cos(angle)
+    const y = 400 - (neckPosition.y + radius * Math.sin(angle))
+    ctx.moveTo(x,y)
+    ctx.arc(x, y, 20, 0, 2* Math.PI)
+    ctx.stroke()
+} 
+
+const drawFeet = (ctx) => {
+    const shoeSize = 20
+    ctx.moveTo(250,400)
+    ctx.lineTo(shoeSize+250,400)
+    ctx.stroke()
+}

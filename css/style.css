@@ -1,0 +1,60 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column; }
+  .wrapper #inputs {
+    display: flex;
+    flex-direction: column; }
+    .wrapper #inputs #lengths {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around; }
+      .wrapper #inputs #lengths label {
+        display: flex;
+        flex-direction: column;
+        align-items: center; }
+        .wrapper #inputs #lengths label input {
+          border: 3px solid #000;
+          border-radius: 5px;
+          height: 50px;
+          line-height: normal;
+          color: #282828;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 50%;
+          box-sizing: border-box;
+          user-select: auto;
+          font-size: 16px;
+          padding: 0 6px; }
+          .wrapper #inputs #lengths label input :focus {
+            border: 3px solid #5551ff; }
+    .wrapper #inputs #angles {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around; }
+      .wrapper #inputs #angles label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 0 1 100px; }
+        .wrapper #inputs #angles label p {
+          border: 3px solid #000;
+          border-radius: 5px;
+          height: 50px;
+          line-height: normal;
+          color: #282828;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 50%;
+          box-sizing: border-box;
+          user-select: auto;
+          font-size: 16px;
+          padding: 0 6px;
+          width: 100%; }
+          .wrapper #inputs #angles label p :focus {
+            border: 3px solid #5551ff; }
+  .wrapper canvas {
+    border: 1px solid #3333BB; }

@@ -1,0 +1,11 @@
+TODO: 
+- [X] Remove angle inputs, now mouse does it. Still need the length inputs though
+- [X] Add in onscreen display for all current angles
+- [X] make it so the mouse coordinates are relative to the canvas box, not the screen
+- [X] inverse the directions of the mouse flow (so up straightens the thigh, and right mvoes the tibia right)
+- [X] make the diagram go red when squat becomes dangerous (hips infront of ankle) 
+- [X] add in a head and feet
+- [] refactor code to be legible
+- [] style
+- [X] keep rendering latest squat
+- [] dockerize (?) and host (!)

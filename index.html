@@ -2,43 +2,46 @@
 <html>
     <head>
         <script src="./squat.js"></script>
+        <link rel="stylesheet" href="./css/style.css">
     </head>
     <body>
-        <h1>Sqott</h1>
-        <div id="inputs">
-            <div id="lengths">
-                <label>
-                    Torso Length
-                    <input type="number" id="torsoLength" placeholder="175"/>
-                </label>
-                <label>
-                    Thigh Length
-                    <input type="number" id="thighLength" placeholder="100"/>
-                </label>
-                <label>
-                    Tibia Length
-                    <input type="number" id="tibiaLength" placeholder="100"/>
-                </label>
-            </div>
-            <div id="angles">
-                <label>
-                    Hip Angle
-                    <input type="number" id="hipAngle" placeholder="45"/>
-                </label>
-                <label>
-                    Knee Angle
-                    <input type="number" id="kneeAngle" placeholder="45"/>
-                </label>
-                <label>
-                    Ankle Angle
-                    <input type="number" id="ankleAngle" placeholder="45"/>
-                </label>
+        <div class="wrapper">
+            <h1>Sqott</h1>
+            <div id="inputs">
+                <div id="lengths">
+                    <label>
+                        Torso Length
+                        <input type="number" id="torsoLength" placeholder="125"/>
+                    </label>
+                    <label>
+                        Thigh Length
+                        <input type="number" id="thighLength" placeholder="100"/>
+                    </label>
+                    <label>
+                        Tibia Length
+                        <input type="number" id="tibiaLength" placeholder="100"/>
+                    </label>
+                </div>
+                <div id="angles">
+                    <label>
+                        Hip Angle
+                        <p id="hipAngle"></p>
+                    </label>
+                    <label>
+                        Knee Angle
+                        <p id="kneeAngle"> </p>
+                    </label>
+                    <label>
+                        Ankle Angle
+                        <p id="ankleAngle"></p>
+                    </label>
 
+                </div>
             </div>
+            <canvas id="tutorial" width="500" height="500">
+                Base Content
+            </canvas>
         </div>
-        <canvas id="tutorial" width="500" height="500">
-            Base Content
-        </canvas>
     </body>
 </html>
 
